@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/Widget.Material3.CardView.Elevated"
+    app:cardBackgroundColor="?attr/colorSecondaryFixed"
+    android:outlineAmbientShadowColor="?attr/colorSecondaryFixed"
+    android:outlineSpotShadowColor="?attr/colorSecondaryFixed"
+    app:cardElevation="10sp"
+    android:layout_margin="4sp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20sp"
+        android:id="@+id/relativeLayout">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/passion_one_bold"
+            android:id="@+id/qTV"
+            android:text="&quot;"
+            android:textSize="60sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans_medium"
+            android:layout_alignBaseline="@id/qTV"
+            android:layout_alignStart="@id/qTV"
+            android:id="@+id/list_item_quote"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nib"
+            android:textSize="18sp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/passion_one_bold"
+            android:text="- "
+            android:id="@+id/list_item_author"
+            android:textSize="16sp"
+            android:layout_alignEnd="@id/list_item_quote"
+            android:layout_below="@id/list_item_quote"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            app:icon="@drawable/round_favourite_outline_24"
+            android:layout_below="@id/list_item_author"
+            android:id="@+id/favouriteBtn"/>
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>
