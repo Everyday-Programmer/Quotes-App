@@ -13,8 +13,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20sp"
-        android:id="@+id/relativeLayout">
+        android:padding="20sp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,7 +50,7 @@
             style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
             app:icon="@drawable/round_favourite_outline_24"
             android:layout_below="@id/list_item_author"
-            android:id="@+id/favouriteBtn"/>
+            android:id="@+id/list_item_favourite_btn"/>
 
     </RelativeLayout>
 

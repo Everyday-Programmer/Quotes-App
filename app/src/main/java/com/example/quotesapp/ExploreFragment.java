@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.quotesapp.databinding.FragmentExploreBinding;
+import com.faltenreich.skeletonlayout.Skeleton;
+import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +29,9 @@ import okhttp3.Response;
 
 public class ExploreFragment extends Fragment {
     FragmentExploreBinding binding;
+    ArrayList<Quote> arrayList;
+    QuotesAdapter quotesAdapter;
+    Skeleton skeleton;
 
     public ExploreFragment() {
 
@@ -34,6 +40,13 @@ public class ExploreFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentExploreBinding.inflate(inflater, container, false);
+
+        arrayList = new ArrayList<>();
+        quotesAdapter = new QuotesAdapter(getActivity(), arrayList);
+        binding.recyclerView.setAdapter(quotesAdapter);
+
+        skeleton = SkeletonLayoutUtils.applySkeleton(binding.recyclerView, R.layout.explore_list_item, 10);
+        skeleton.showSkeleton();
 
         fetchQuotes();
 
@@ -56,7 +69,12 @@ public class ExploreFragment extends Fragment {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.body() != null) {
                     try {
-                        ArrayList<Quote> arrayList = new ArrayList<>();
+                        requireActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                skeleton.showOriginal();
+                            }
+                        });
                         JSONArray jsonArray = new JSONArray(response.body().string());
 
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -71,19 +89,23 @@ public class ExploreFragment extends Fragment {
                             Quote quote1 = new Quote(quote, author);
                             arrayList.add(quote1);
 
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    QuotesAdapter quotesAdapter = new QuotesAdapter(getActivity(), arrayList);
-                                    binding.recyclerView.setAdapter(quotesAdapter);
-
-                                    quotesAdapter.setOnLikeClickListener(new QuotesAdapter.OnLikeClickListener() {
-                                        @Override
-                                        public void like(Quote quote) {
-
+                            requireActivity().runOnUiThread(() -> {
+                                quotesAdapter.notifyItemInserted(arrayList.size() - 1);
+                                quotesAdapter.setOnLikeClickListener(new QuotesAdapter.OnLikeClickListener() {
+                                    @Override
+                                    public void like(View view, Quote quote) {
+                                        QuotesDatabaseManager quotesDatabaseManager = new QuotesDatabaseManager(getActivity());
+                                        if (!quotesDatabaseManager.quoteExists(quote.getQuote())) {
+                                            quotesDatabaseManager.addLikedQuote(quote.getQuote(), quote.getAuthor());
+                                            Snackbar.make(requireContext(), view, "Quote added to liked quotes", Snackbar.LENGTH_SHORT).show();
+                                        } else {
+                                            quotesDatabaseManager.removeQuote(quote.getQuote());
+                                            Snackbar.make(requireContext(), view, "Quote removed from liked quotes", Snackbar.LENGTH_SHORT).show();
                                         }
-                                    });
+                                        quotesDatabaseManager.close();
+                                    }
                                 });
-                            }
+                            });
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

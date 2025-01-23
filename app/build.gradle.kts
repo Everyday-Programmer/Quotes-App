@@ -48,4 +48,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.okhttp)
     implementation(libs.glide)
+    implementation("com.faltenreich:skeletonlayout:5.0.0")
 }

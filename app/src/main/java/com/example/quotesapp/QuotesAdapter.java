@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
@@ -35,7 +37,20 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
         holder.quote.setText(arrayList.get(position).getQuote());
         holder.author.setText(MessageFormat.format("- {0}", arrayList.get(position).getAuthor()));
 
-        holder.relativeLayout.setOnClickListener(view -> onLikeClickListener.like(arrayList.get(position)));
+        if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(position).getQuote())) {
+            holder.favouriteBtn.setIconResource(R.drawable.round_favourite_filled_24);
+        } else {
+            holder.favouriteBtn.setIconResource(R.drawable.round_favourite_outline_24);
+        }
+
+        holder.favouriteBtn.setOnClickListener(view -> {
+            if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(position).getQuote())) {
+                holder.favouriteBtn.setIconResource(R.drawable.round_favourite_outline_24);
+            } else {
+                holder.favouriteBtn.setIconResource(R.drawable.round_favourite_filled_24);
+            }
+            onLikeClickListener.like(holder.itemView, arrayList.get(position));
+        });
     }
 
     @Override
@@ -45,12 +60,12 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView quote, author;
-        RelativeLayout relativeLayout;
+        MaterialButton favouriteBtn;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             quote = itemView.findViewById(R.id.list_item_quote);
             author = itemView.findViewById(R.id.list_item_author);
-            relativeLayout = itemView.findViewById(R.id.relativeLayout);
+            favouriteBtn = itemView.findViewById(R.id.list_item_favourite_btn);
         }
     }
 
@@ -59,6 +74,6 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
     }
 
     public interface OnLikeClickListener {
-        void like(Quote quote);
+        void like(View view, Quote quote);
     }
 }
