@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20sp"
+    android:id="@+id/widget_root"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quote of the Day"
+        android:id="@+id/quoteOfTheDayTV"
+        android:fontFamily="@font/open_sans_medium"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/passion_one_bold"
+        android:layout_marginTop="10sp"
+        android:id="@+id/qTV"
+        android:text="&quot;"
+        android:textSize="60sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/open_sans_medium"
+        android:layout_alignBaseline="@id/qTV"
+        android:layout_below="@id/quoteOfTheDayTV"
+        android:layout_alignStart="@id/qTV"
+        android:id="@+id/quoteTV"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nib"
+        android:textSize="18sp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/passion_one_bold"
+        android:text="- "
+        android:id="@+id/authorTV"
+        android:textSize="16sp"
+        android:layout_alignEnd="@id/quoteTV"
+        android:layout_below="@id/quoteTV"/>
+
+</RelativeLayout>

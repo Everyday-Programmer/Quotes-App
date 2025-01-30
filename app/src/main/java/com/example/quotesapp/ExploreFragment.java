@@ -93,7 +93,7 @@ public class ExploreFragment extends Fragment {
                                 quotesAdapter.notifyItemInserted(arrayList.size() - 1);
                                 quotesAdapter.setOnLikeClickListener(new QuotesAdapter.OnLikeClickListener() {
                                     @Override
-                                    public void like(View view, Quote quote) {
+                                    public void like(int pos, View view, Quote quote) {
                                         QuotesDatabaseManager quotesDatabaseManager = new QuotesDatabaseManager(getActivity());
                                         if (!quotesDatabaseManager.quoteExists(quote.getQuote())) {
                                             quotesDatabaseManager.addLikedQuote(quote.getQuote(), quote.getAuthor());

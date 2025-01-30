@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class QuotesDatabaseManager {
     private final DatabaseHelper dbHelper;
@@ -17,8 +16,8 @@ public class QuotesDatabaseManager {
         database = dbHelper.getWritableDatabase();
     }
 
-    public List<Quote> getAllQuotes() {
-        List<Quote> quotes = new ArrayList<>();
+    public ArrayList<Quote> getAllQuotes() {
+        ArrayList<Quote> quotes = new ArrayList<>();
         Cursor cursor = database.query(DatabaseHelper.TABLE_QUOTES, null, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {

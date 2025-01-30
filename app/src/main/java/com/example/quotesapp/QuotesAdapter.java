@@ -34,22 +34,22 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.quote.setText(arrayList.get(position).getQuote());
-        holder.author.setText(MessageFormat.format("- {0}", arrayList.get(position).getAuthor()));
+        holder.quote.setText(arrayList.get(holder.getAbsoluteAdapterPosition()).getQuote());
+        holder.author.setText(MessageFormat.format("- {0}", arrayList.get(holder.getAbsoluteAdapterPosition()).getAuthor()));
 
-        if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(position).getQuote())) {
+        if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(holder.getAbsoluteAdapterPosition()).getQuote())) {
             holder.favouriteBtn.setIconResource(R.drawable.round_favourite_filled_24);
         } else {
             holder.favouriteBtn.setIconResource(R.drawable.round_favourite_outline_24);
         }
 
         holder.favouriteBtn.setOnClickListener(view -> {
-            if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(position).getQuote())) {
+            if (new QuotesDatabaseManager(context).quoteExists(arrayList.get(holder.getAbsoluteAdapterPosition()).getQuote())) {
                 holder.favouriteBtn.setIconResource(R.drawable.round_favourite_outline_24);
             } else {
                 holder.favouriteBtn.setIconResource(R.drawable.round_favourite_filled_24);
             }
-            onLikeClickListener.like(holder.itemView, arrayList.get(position));
+            onLikeClickListener.like(holder.getAbsoluteAdapterPosition(), holder.itemView, arrayList.get(holder.getAbsoluteAdapterPosition()));
         });
     }
 
@@ -74,6 +74,6 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
     }
 
     public interface OnLikeClickListener {
-        void like(View view, Quote quote);
+        void like(int pos, View view, Quote quote);
     }
 }
