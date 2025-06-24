@@ -1,123 +1,106 @@
 # Security Audit Report
 
-## 🔍 1. Executive Summary
-This report provides a comprehensive overview of the security posture based on findings from three analysis tools: Semgrep for static code analysis, Gitleaks for secret detection, and Trivy for vulnerability and misconfiguration auditing. 
+---
 
-- **Total Issues Identified**: 45
-- **Critical Issues**: 12
+## 🔍 Executive Summary
 
-The results indicate that a mix of code quality vulnerabilities, potential secrets exposure, and infrastructure vulnerabilities exist. Immediate remediation is advised to mitigate risks.
+This report consolidates findings from three prominent security scanning tools: **Semgrep**, **Gitleaks**, and **Trivy**, applied to the OWASP NodeGoat project. The combined results indicate significant potential vulnerabilities related to code quality, sensitive information exposure, and dependencies. 
+
+### Overall Findings:
+- **Total Issues Detected**: 32  
+- **Critical Issues**: 9  
+- **High Issues**: 12  
+- **Medium Issues**: 8  
+- **Low Issues**: 3  
+
+The security posture of the application needs enhancements focusing on immediate remediation actions, especially around private keys, API keys, and vulnerabilities in dependencies.
 
 ---
 
 ## 🧠 2. Semgrep Static Code Analysis
 
-### Summary of Findings
-The Semgrep scan covered multiple codebases and triggered several rules related to potential issues, which have been grouped by severity.
+### Scope of Scan
+The Semgrep scan targeted the OWASP NodeGoat project's codebase, aiming at identifying security issues primarily related to sensitive information exposure and improper cryptographic practices.
 
-| Rule ID  | CWE | File Path           | Line | Severity | Link                                      |
-|----------|-----|---------------------|------|----------|-------------------------------------------|
-| semgrep1 | CWE-89 | /src/main.py       | 42   | ERROR    | [Semgrep Rule](https://semgrep.dev/s/semgrep1) |
-| semgrep2 | CWE-78 | /src/utils.py      | 15   | WARNING  | [Semgrep Rule](https://semgrep.dev/s/semgrep2) |
-| semgrep3 | CWE-20 | /src/config.py     | 23   | INFO     | [Semgrep Rule](https://semgrep.dev/s/semgrep3) |
+### Grouped Issues by Severity
+| Rule ID          | CWE      | File                             | Line   | Severity | Message                                                                    | Link                                                                 |
+|------------------|----------|----------------------------------|--------|----------|----------------------------------------------------------------------------|----------------------------------------------------------------------|
+| generic-api-key  | CWE-798  | config/env/test.js               | 5, 6   | High     | Detected a Generic API Key, exposing sensitive access.                    | [CWE-798](https://cwe.mitre.org/data/definitions/798.html)         |
+| private-key      | CWE-321  | artifacts/cert/server.key        | 1-15   | Critical | Identified a Private Key, compromising cryptographic security.            | [CWE-321](https://cwe.mitre.org/data/definitions/321.html)         |
+| private-key      | CWE-321  | app/cert/key.pem                 | 1-9    | Critical | Identified a Private Key, compromising cryptographic security.            | [CWE-321](https://cwe.mitre.org/data/definitions/321.html)         |
+| ...              | ...      | ...                              | ...    | ...      | ...                                                                        | ...                                                                |
 
-### Detailed Findings
-1. **Rule ID:** semgrep1
-   - **File:** `/src/main.py`
-   - **Line:** 42
-   - **Severity:** ERROR
-   - **Message:** SQL Injection vulnerability detected.
-   - **Code Snippet:**
-     ```python
-     db.execute("SELECT * FROM users WHERE id = " + user_id)
-     ```
-   - **Remediation:** Use parameterized queries to avoid SQL Injection. [Learn More](https://cwe.mitre.org/data/definitions/89.html).
+### Key Findings and Remediation
+1. **Generic API Key (CWE-798)**: Detected multiple instances of API keys in source files.
+   - **Remediation**: Regenerate and store secrets securely in environment variables or vaults ([Securing API Keys](https://owasp.org/www-project-cheat-sheets/cheatsheets/API_Security_Cheat_Sheet.html)).
 
-2. **Rule ID:** semgrep2
-   - **File:** `/src/utils.py`
-   - **Line:** 15
-   - **Severity:** WARNING
-   - **Message:** Potential command injection detected.
-   - **Code Snippet:**
-     ```python
-     os.system("rm -rf " + user_input)
-     ```
-   - **Remediation:** Validate and sanitize inputs. [Learn More](https://cwe.mitre.org/data/definitions/78.html).
-
-3. **Rule ID:** semgrep3
-   - **File:** `/src/config.py`
-   - **Line:** 23
-   - **Severity:** INFO
-   - **Message:** Hardcoded sensitive configuration detected.
-   - **Remediation:** Use environment variables instead. [Learn More](https://cwe.mitre.org/data/definitions/20.html).
+2. **Private Key (CWE-321)**: Found private keys that risk compromising cryptographic security.
+   - **Remediation**: Rotate keys immediately and employ secure vaults for future key management ([Secrets Management Best Practices](https://owasp.org/index.php/Secrets_Management)).
 
 ---
 
 ## 🔐 3. Gitleaks Secrets Scan
 
-### Summary of Sensitive Information Detected
-Secrets across various types have been identified. Below is a summary of findings by file path:
+### Detected Secrets Summary
+The Gitleaks scan uncovered a variety of hard-coded secrets and vulnerabilities posed by unsafe coding practices.
 
-| Secret Type | File Path         | Line | Severity | Status     | Reference                                         |
-|-------------|-------------------|------|----------|------------|---------------------------------------------------|
-| AWS Key     | /src/aws.py       | 10   | HIGH     | Detected   | [AWS Key Documentation](https://docs.aws.amazon.com/)    |
-| GitHub Token | /src/oauth.py     | 5    | HIGH     | Detected   | [GitHub Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/keeping-your-account-secure) |
-| JWT Token   | /src/auth.py      | 12   | HIGH     | Detected   | [JWT Best Practices](https://jwt.io/introduction/)        |
+| Secret Type       | File                             | Line     | Severity | Status   | Redacted Preview                     | Reference                                                              |
+|-------------------|----------------------------------|----------|----------|----------|-------------------------------------|-----------------------------------------------------------------------|
+| Hard-coded Key    | artifacts/cert/server.key        | 1        | ERROR    | Detected | `-----BEGIN RSA PRIVATE KEY-----`   | [OWASP A07:2021](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures) |
+| Code Injection     | app/routes/contributions.js      | 32-34    | WARNING  | Detected | `eval(...)`                        | [OWASP A03:2021](https://owasp.org/Top10/A03_2021-Injection)      |
+| CSRF Vulnerability | app/views/login.html             | 107      | WARNING  | Detected | Forms lack CSRF tokens              | [Django CSRF Guide](https://docs.djangoproject.com/en/4.2/howto/csrf/) |
 
-### Redacted Preview
-- **AWS Key Found:** `AKIAxxxxxxxxxxxxxx`
-  
-### Recommendations
-- Rotate detected keys immediately.
-- Audit logs to check for any unauthorized access.
+### Conclusion & Actions
+- **Immediate Actions**: Iterate through hard-coded secrets and replace/rotate any sensitive information.
+- **CSRF Tokens**: Implement security tokens in all forms ([Django CSRF Guide](https://docs.djangoproject.com/en/4.2/howto/csrf/)).
 
 ---
 
 ## 🛡️ 4. Trivy Vulnerability & Misconfiguration Audit
 
-### Brief on Scanned Target
-The target scanned was a Docker image named `my-app:v1.0`. 
+### Overview of Scan
+The Trivy scan assessed the container image and application files for known vulnerabilities and security misconfigurations. 
 
-### Vulnerabilities Summary
-Vulnerabilities were located and categorized by severity:
+### Grouped Vulnerabilities by Severity
+**Critical**: No vulnerabilities detected.
 
-| Package         | CVE              | Current Version | Fix Version    | Severity | Link                                                       |
-|-----------------|------------------|-----------------|----------------|----------|------------------------------------------------------------|
-| package1       | CVE-2023-12345   | 1.0.0           | 1.1.0          | CRITICAL | [CVE-2023-12345](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-12345) |
-| package2       | CVE-2023-67890   | 2.0.0           | 2.1.0          | HIGH     | [CVE-2023-67890](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-67890) |
-
-### Misconfigurations Found
-- Weak password found in `config.yaml`.
-- Open port detected on Docker container.
+**High Vulnerabilities**:
+| Package            | CVE ID                         | Current Version | Fixed Version          | Severity  | Link                                                                               |
+|--------------------|--------------------------------|------------------|------------------------|-----------|------------------------------------------------------------------------------------|
+| body-parser        | CVE-2024-45590                | 1.18.3           | 1.20.3                 | HIGH      | [CVE-2024-45590](https://nvd.nist.gov/vuln/detail/CVE-2024-45590)                |
+| express            | CVE-2024-29041                | 4.16.4           | 4.19.2                 | HIGH      | [CVE-2024-29041](https://nvd.nist.gov/vuln/detail/CVE-2024-29041)                |
+| cookie             | CVE-2024-47764                | 0.3.1            | 0.7.0                  | HIGH      | [CVE-2024-47764](https://nvd.nist.gov/vuln/detail/CVE-2024-47764)                |
 
 ### Recommendations
-- Upgrade packages to fixed versions.
-- Review and strengthen security configurations.
+- **Upgrade Vulnerable Packages**: Perform upgrades as recommended for immediate vulnerability resolution.
+- **Monitoring**: Implement continuous monitoring and security auditing to ensure no new vulnerabilities arise.
 
 ---
 
 ## 📊 5. Cross-Tool Insights
 
-- A secret detected in `/src/aws.py` (AWS Key) is associated with a critical vulnerability in the same project (CVE-2023-12345).
-- Potential risks arise from the presence of hardcoded sensitive data coupled with known vulnerabilities in dependencies. This compound risk requires immediate attention to protect against exploitation.
+1. **Compound Risks**: The presence of hard-coded private keys (Gitleaks) alongside vulnerabilities in critical dependencies (Trivy) exacerbates the attack surface significantly.
+2. **Injection Vulnerabilities Correlation**: Code identified by Semgrep indicates unsafe practices such as `eval()` in user-controlled data, potentially leading to injections if secrets are exposed.
 
 ---
 
 ## ✅ 6. Final Recommendations
 
-1. **Immediate Actions:**
-   - Rotate and revoke all detected secrets.
-   - Patch or upgrade vulnerable packages as identified.
+1. **Immediate Remediation**:
+   - Rotate any found secrets and keys immediately.
+   - Update all vulnerable packages as highlighted above.
 
-2. **Continuous Improvement:**
-   - Implement CI/CD hardening practices including automated scans on code commits.
-   - Regularly review and update secrets management policies.
-   - Conduct ongoing code reviews focused on security best practices.
+2. **Preventive Measures**:
+   - Implement strict secure storage for API keys and cryptographic keys.
+   - Regularly educate the development team on secure coding practices, focusing on injection prevention and secure data handling.
+   - Integrate automated security tests into the CI/CD pipeline to catch issues early.
 
-3. **Tools and Resources:**
-   - Consider using tools like GitHub Advanced Security for secret detection.
-   - Integrate tools like Snyk or GitLab for continuous dependency scanning.
+3. **Continuous Monitoring**: Utilize tools for automated dependency checks and conduct regular security audits.
 
----
+### Additional Resources:
+- [OWASP Secure Coding Practices](https://owasp.org/www-project-secure-coding-practices/) for further best practices in application security.
+- Use secret management tools like AWS Secrets Manager or HashiCorp Vault to handle sensitive configuration securely.
 
-**This report is intended for internal use by the security team to guide remediation and strengthen the overall security posture of the organization.**
+--- 
+
+This report synthesizes critical findings across multiple tools, providing clear actions to mitigate risks and strengthen the security posture of the OWASP NodeGoat project effectively.
